@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistema de Lançamentos — 3M Agropecuária</title>
+<style>
+:root{
+ --navy:#1B3A6B;--green:#2E7D32;--amber:#E65100;--red:#C62828;--purple:#6A1B9A;
+ --bg:#F0F4F8;--white:#fff;--text:#1a1a2e;--text2:#3d5275;--text3:#8a9ab5;
+ --border:#dce4f0;--r:10px;--sh:0 2px 12px rgba(27,58,107,.08);
+ --sans:'Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+ background:linear-gradient(135deg,#0d1f3c 0%,#1B3A6B 50%,#1a3a2e 100%)}
+.login-box{background:var(--white);border-radius:16px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.lb-brand .co{font-size:9px;font-weight:800;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px}
+.lb-brand .ti{font-size:18px;font-weight:900;color:var(--navy);margin-bottom:4px}
+.lb-brand .su{font-size:12px;color:var(--text3);margin-bottom:24px}
+.finp{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.finp label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.finp input{padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:var(--sans);color:var(--text)}
+.finp input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,58,107,.1)}
+.btn-login{width:100%;padding:12px;background:linear-gradient(135deg,var(--navy),var(--green));color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer}
+.err-box{background:#fde8e8;color:var(--red);border-radius:8px;padding:10px 14px;font-size:12px;font-weight:600;margin-top:10px;display:none}
+
+/* TROCA SENHA */
+.senha-wrap{min-height:100vh;display:none;align-items:center;justify-content:center;padding:20px;
+ background:linear-gradient(135deg,#1a2a1a 0%,#2E7D32 100%)}
+.senha-box{background:var(--white);border-radius:16px;padding:36px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.senha-icon{font-size:40px;text-align:center;margin-bottom:16px}
+.senha-title{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:6px}
+.senha-sub{font-size:12px;color:var(--text3);margin-bottom:20px}
+
+/* APP */
+.app{display:none;min-height:100vh;flex-direction:column}
+.topbar{background:linear-gradient(135deg,var(--navy),#163060);color:#fff;padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.tb-brand{font-size:13px;font-weight:800;color:#fff}
+.tb-brand span{font-size:10px;font-weight:400;color:rgba(255,255,255,.5);margin-right:6px}
+.tb-right{display:flex;align-items:center;gap:8px}
+.user-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border-radius:20px;padding:4px 10px 4px 4px}
+.user-av{width:26px;height:26px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff}
+.user-nm{font-size:11px;font-weight:600;color:rgba(255,255,255,.9)}
+.user-badge{font-size:9px;padding:1px 6px;border-radius:10px;font-weight:700;text-transform:uppercase}
+.badge-admin{background:rgba(106,27,154,.6);color:#e1bee7}
+.badge-lanc{background:rgba(46,125,50,.5);color:#c8e6c9}
+.badge-vis{background:rgba(0,0,0,.3);color:rgba(255,255,255,.5)}
+.btn-sair{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-family:var(--sans)}
+
+.main{flex:1;padding:20px;max-width:1100px;margin:0 auto;width:100%}
+
+/* TABS */
+.tabs{display:flex;gap:3px;margin-bottom:18px;background:var(--white);border-radius:10px;padding:4px;box-shadow:var(--sh);flex-wrap:wrap}
+.tab{flex:1;min-width:100px;padding:9px 8px;border:none;background:none;border-radius:7px;font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;font-family:var(--sans);white-space:nowrap}
+.tab.on{background:var(--navy);color:#fff}
+.tab:hover:not(.on){background:var(--bg)}
+
+/* CARDS / FORM */
+.card{background:var(--white);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:16px}
+.card-title{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:18px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.fg input,.fg select,.fg textarea{padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--sans);color:var(--text);background:var(--white)}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,58,107,.08)}
+.fg textarea{resize:vertical;min-height:64px}
+.fg .hint{font-size:10px;color:var(--text3)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.full{grid-column:1/-1}
+.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.btn{padding:9px 20px;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)}
+.btn-p{background:linear-gradient(135deg,var(--navy),var(--green));color:#fff}
+.btn-s{background:var(--bg);color:var(--text2);border:1px solid var(--border)}
+.btn-r{background:#fde8e8;color:var(--red);border:1px solid #f5c6c6}
+.btn-w{background:linear-gradient(135deg,var(--amber),#bf360c);color:#fff}
+
+/* KPIS */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.kp{background:var(--white);border-radius:10px;padding:12px 14px;box-shadow:var(--sh);border-top:3px solid var(--navy)}
+.kp-l{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.kp-v{font-size:18px;font-weight:900;color:var(--navy)}
+
+/* TABLE */
+.tw{overflow-x:auto;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--navy);color:rgba(255,255,255,.9);padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+thead th.r{text-align:right}
+tbody tr:nth-child(even){background:#f8faff}
+tbody tr:hover{background:#eef2ff}
+tbody td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text2);font-size:12px}
+tbody td.r{text-align:right;font-family:monospace;font-weight:700}
+.red{color:var(--red)}.grn{color:var(--green)}
+.emp{text-align:center;padding:32px;color:var(--text3);font-size:13px}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:700;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.2);transform:translateY(80px);opacity:0;transition:.3s;z-index:9999;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:var(--green)}.toast.err{background:var(--red)}
+
+/* ADMIN BADGES */
+.perfil-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;text-transform:uppercase}
+.p-admin{background:#f3e5f5;color:var(--purple)}
+.p-lanc{background:#e8f5e9;color:var(--green)}
+.p-vis{background:#f5f5f5;color:#888}
+.temp-badge{background:#fff3e0;color:var(--amber);border-radius:10px;padding:1px 6px;font-size:9px;font-weight:700}
+
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:600px){.grid2,.grid3{grid-template-columns:1fr}.main{padding:12px}.tabs{gap:2px}.tab{font-size:11px;padding:8px 6px}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="pgLogin" style="display:flex">
+ <div class="login-box">
+  <div class="lb-brand">
+   <div class="co">3M Agropecuária</div>
+   <div class="ti">Sistema de Lançamentos</div>
+   <div class="su">Entre com suas credenciais para acessar</div>
+  </div>
+  <div class="finp"><label>Usuário</label><input type="text" id="lUser" placeholder="seu.usuario" autocomplete="username"></div>
+  <div class="finp"><label>Senha</label><input type="password" id="lPass" placeholder="••••••••" autocomplete="current-password"></div>
+  <button class="btn-login" onclick="doLogin()">Entrar →</button>
+  <div class="err-box" id="lErr"></div>
+ </div>
+</div>
+
+<!-- TROCA DE SENHA OBRIGATÓRIA -->
+<div class="senha-wrap" id="pgSenha">
+ <div class="senha-box">
+  <div class="senha-icon">🔐</div>
+  <div class="senha-title">Crie sua senha pessoal</div>
+  <div class="senha-sub">Este é seu primeiro acesso. Defina uma senha pessoal para continuar — ela substitui a senha padrão.</div>
+  <div class="finp"><label>Senha atual (padrão)</label><input type="password" id="sAtual" placeholder="3M@2026"></div>
+  <div class="finp"><label>Nova senha *</label><input type="password" id="sNova" placeholder="mínimo 6 caracteres"></div>
+  <div class="finp"><label>Confirmar nova senha *</label><input type="password" id="sConf" placeholder="repita a nova senha"></div>
+  <button class="btn-login" onclick="trocarSenha()" style="margin-top:8px">Definir minha senha →</button>
+  <div class="err-box" id="sErr"></div>
+ </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="pgApp">
+ <div class="topbar">
+  <div class="tb-brand"><span>3M Agropecuária /</span> Sistema de Lançamentos</div>
+  <div class="tb-right">
+   <div class="user-pill">
+    <div class="user-av" id="uAv">N</div>
+    <div class="user-nm" id="uNm">—</div>
+    <span class="user-badge" id="uBadge"></span>
+   </div>
+   <button class="btn-sair" onclick="sair()">⎋ Sair</button>
+  </div>
+ </div>
+
+ <div class="main">
+  <div class="tabs" id="tabBar">
+   <button class="tab on" onclick="showTab('novo')">➕ Novo Lançamento</button>
+   <button class="tab" onclick="showTab('historico')">📋 Histórico</button>
+   <button class="tab" id="tabLog" onclick="showTab('log')" style="display:none">📊 Log de Acessos</button>
+   <button class="tab" id="tabAdm" onclick="showTab('admin')" style="display:none">⚙️ Usuários</button>
+  </div>
+
+  <!-- NOVO LANÇAMENTO -->
+  <div id="tab-novo">
+   <div class="card">
+    <div class="card-title">📝 Novo Lançamento</div>
+    <div class="grid3">
+     <div class="fg"><label>Data *</label><input type="date" id="fData"></div>
+     <div class="fg"><label>Banco</label>
+      <select id="fBanco">
+       <option value="">Selecione...</option>
+       <option>Bradesco</option><option>Banco do Brasil</option><option>Santander</option>
+       <option>Sicredi</option><option>Cresol</option><option>Sicoob</option>
+       <option>Safra</option><option>Pine</option><option>Itaú</option>
+      </select>
+     </div>
+     <div class="fg"><label>Status</label>
+      <select id="fStatus">
+       <option value="">—</option>
+       <option value="E">E — Executado</option>
+       <option value="P">P — Pendente</option>
+      </select>
+     </div>
+    </div>
+    <div class="grid2">
+     <div class="fg"><label>Fornecedor</label><input type="text" id="fForn" placeholder="Nome do fornecedor"></div>
+     <div class="fg"><label>N. Doc / NF</label><input type="text" id="fNdoc" placeholder="Número do documento"></div>
+    </div>
+    <div class="grid2">
+     <div class="fg"><label>Processo Compras</label><input type="text" id="fProc" placeholder="Ex: TERMO-001 / MAN-07"></div>
+     <div class="fg"><label>Classificação *</label>
+      <select id="fCl">
+       <option value="">Selecione...</option>
+       <optgroup label="RECEITAS">
+        <option>RECEITA LÍQUIDA - PECUÁRIA</option><option>RECEITA LÍQUIDA - AGRICULTURA</option>
+        <option>RECEITA LÍQUIDA - ADMINISTRATIVO</option><option>RECEITAS FINANCEIRAS</option>
+       </optgroup>
+       <optgroup label="CMV">
+        <option>CMV - COMPRA DE GADO</option><option>CMV - SANIDADE ANIMAL</option>
+        <option>CMV - PASTAGENS</option><option>CMV - NUTRIÇÃO ANIMAL</option>
+        <option>CMV - PRODUÇÃO DE SILAGEM</option><option>CMV - OUTROS CUSTOS - PECUÁRIA</option>
+        <option>CMV - MILHO</option><option>CMV - SOJA</option><option>CMV - SORGO</option>
+       </optgroup>
+       <optgroup label="GASTO COM PESSOAL">
+        <option>GASTO COM PESSOAL - PECUÁRIA</option><option>GASTO COM PESSOAL - AGRICULTURA</option>
+        <option>GASTO COM PESSOAL - ADMINISTRATIVO</option><option>GASTO COM PESSOAL - SEDE</option>
+       </optgroup>
+       <optgroup label="OUTRAS DESPESAS">
+        <option>OUTRAS DESPESAS - PECUÁRIA</option><option>OUTRAS DESPESAS - AGRICULTURA</option>
+        <option>OUTRAS DESPESAS - ADMINISTRATIVO</option><option>OUTRAS DESPESAS - SEDE</option>
+       </optgroup>
+       <optgroup label="TRIBUTOS">
+        <option>TRIBUTOS E TAXAS - PECUÁRIA</option><option>TRIBUTOS E TAXAS - AGRICULTURA</option>
+        <option>TRIBUTOS E TAXAS - ADMINISTRATIVO</option>
+       </optgroup>
+       <optgroup label="FINANCEIRO">
+        <option>PAGAMENTO DE FINANCIMENTO</option><option>ENTRADAS DE FINANCIAMENTOS</option>
+        <option>APLICAÇÃO FINANCEIRA</option><option>RESGATE FINANCEIRO</option>
+        <option>CONSÓRCIO - INVESTIMENTO</option><option>OBRAS - INVESTIMENTO</option>
+        <option>TRANSFERENCIA ENTRE CONTAS</option><option>RESTITUIÇÃO DE MÚTUO</option>
+        <option>LUCRO FINANCEIRO B3</option><option>PERDA FINANCEIRA B3</option>
+        <option>RECOMPOSIÇÃO AMBIENTAL</option>
+       </optgroup>
+      </select>
+     </div>
+    </div>
+    <div style="margin-bottom:14px">
+     <div class="fg"><label>Histórico *</label><textarea id="fHist" placeholder="Descrição detalhada do lançamento..."></textarea></div>
+    </div>
+    <div class="grid3">
+     <div class="fg"><label>Débito R$</label><input type="number" id="fDeb" placeholder="0,00" step="0.01" min="0"><span class="hint">Saída de caixa</span></div>
+     <div class="fg"><label>Crédito R$</label><input type="number" id="fCred" placeholder="0,00" step="0.01" min="0"><span class="hint">Entrada de caixa</span></div>
+     <div class="fg"><label>SAP</label><input type="text" id="fSap" placeholder="Código SAP"></div>
+    </div>
+    <div class="grid2">
+     <div class="fg"><label>Categoria</label><select id="fCat"><option value="">—</option><option value="C">C — Confirmado</option></select></div>
+     <div class="fg"><label>Previsão</label><select id="fPrev"><option value="">—</option><option value="C">C — Previsão</option></select></div>
+    </div>
+    <div class="actions">
+     <button class="btn btn-s" onclick="limpar()">↺ Limpar</button>
+     <button class="btn btn-p" onclick="salvar()" id="btnSalvar">💾 Salvar Lançamento</button>
+    </div>
+   </div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div id="tab-historico" style="display:none">
+   <div class="kpis" id="kpisH"></div>
+   <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+     <div style="font-size:15px;font-weight:800;color:var(--navy)">📋 Lançamentos do Mês Atual</div>
+     <button class="btn btn-s" style="padding:6px 12px;font-size:11px" onclick="carregarHist()">↻ Atualizar</button>
+    </div>
+    <div id="listaH"><div class="emp"><span class="spin"></span>Carregando...</div></div>
+   </div>
+  </div>
+
+  <!-- LOG -->
+  <div id="tab-log" style="display:none">
+   <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+     <div style="font-size:15px;font-weight:800;color:var(--navy)">📊 Log de Acessos e Ações</div>
+     <button class="btn btn-s" style="padding:6px 12px;font-size:11px" onclick="carregarLog()">↻ Atualizar</button>
+    </div>
+    <div id="listaLog"><div class="emp"><span class="spin"></span>Carregando...</div></div>
+   </div>
+  </div>
+
+  <!-- ADMIN USUÁRIOS -->
+  <div id="tab-admin" style="display:none">
+   <div class="card" style="margin-bottom:14px">
+    <div class="card-title">➕ Adicionar Usuário</div>
+    <div class="grid3">
+     <div class="fg"><label>Login (sem espaços) *</label><input type="text" id="aUser" placeholder="ex: joao.silva"></div>
+     <div class="fg"><label>Nome completo *</label><input type="text" id="aNome" placeholder="João da Silva"></div>
+     <div class="fg"><label>Perfil</label>
+      <select id="aPerfil">
+       <option value="lancador">Lançador</option>
+       <option value="visualizador">Visualizador</option>
+       <option value="admin">Admin</option>
+      </select>
+     </div>
+    </div>
+    <div class="actions">
+     <button class="btn btn-p" onclick="addUsuario()">➕ Criar Usuário</button>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-top:8px">A senha padrão será <b>3M@2026</b> — o usuário deverá trocá-la no primeiro acesso.</div>
+   </div>
+   <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+     <div style="font-size:15px;font-weight:800;color:var(--navy)">👥 Usuários Cadastrados</div>
+     <button class="btn btn-s" style="padding:6px 12px;font-size:11px" onclick="carregarUsuarios()">↻ Atualizar</button>
+    </div>
+    <div id="listaUsers"><div class="emp"><span class="spin"></span>Carregando...</div></div>
+   </div>
+  </div>
+
+ </div><!-- /main -->
+</div><!-- /app -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+const GAS = 'https://script.google.com/macros/s/AKfycbw7je7nQVOAsbrOaAL-54Iso1VbEtPkDSO0ah21Yp2wW6-lvsH7rFxyKnV3GzH9HXgr/exec';
+
+let _s = null; // sessão: {usuario, senha, nome, perfil}
+
+// ============ LOGIN ============
+async function doLogin(){
+ const usuario = v('lUser'), senha = v('lPass');
+ const err = id('lErr');
+ err.style.display='none';
+ if(!usuario||!senha){showErr(err,'Preencha usuário e senha');return;}
+ try{
+  const r = await post({action:'login', usuario, senha});
+  if(!r.ok){showErr(err, r.erro||'Acesso negado');return;}
+  _s = {usuario: r.usuario, senha, nome: r.nome, perfil: r.perfil};
+  if(r.senha_temp){
+   id('pgLogin').style.display='none';
+   id('pgSenha').style.display='flex';
+   id('sAtual').value = senha;
+  } else {
+   iniciarApp();
+  }
+ }catch(e){showErr(err,'Erro de conexão: '+e.message);}
+}
+
+// ============ TROCA SENHA ============
+async function trocarSenha(){
+ const atual = v('sAtual'), nova = v('sNova'), conf = v('sConf');
+ const err = id('sErr');
+ err.style.display='none';
+ if(!nova||nova.length<6){showErr(err,'Nova senha deve ter pelo menos 6 caracteres');return;}
+ if(nova !== conf){showErr(err,'As senhas não conferem');return;}
+ if(nova === '3M@2026'){showErr(err,'Escolha uma senha diferente da padrão');return;}
+ try{
+  const r = await post({action:'trocar_senha', usuario:_s.usuario, senha_atual:atual, senha_nova:nova});
+  if(!r.ok){showErr(err, r.erro);return;}
+  _s.senha = nova;
+  toast('✅ Senha definida! Bem-vindo ao sistema.','ok');
+  id('pgSenha').style.display='none';
+  iniciarApp();
+ }catch(e){showErr(err,'Erro: '+e.message);}
+}
+
+// ============ APP ============
+function iniciarApp(){
+ id('pgLogin').style.display='none';
+ id('pgSenha').style.display='none';
+ id('pgApp').style.display='flex';
+ id('uNm').textContent = _s.nome.split(' ')[0];
+ id('uAv').textContent = _s.nome[0].toUpperCase();
+ const badge = id('uBadge');
+ if(_s.perfil==='admin'){badge.textContent='Admin';badge.className='user-badge badge-admin';}
+ else if(_s.perfil==='lancador'){badge.textContent='Lançador';badge.className='user-badge badge-lanc';}
+ else{badge.textContent='Visualizador';badge.className='user-badge badge-vis';}
+ // Mostrar abas admin
+ if(_s.perfil==='admin'){
+  id('tabLog').style.display='';
+  id('tabAdm').style.display='';
+ }
+ // Desabilitar salvar para visualizador
+ if(_s.perfil==='visualizador'){
+  id('btnSalvar').disabled=true;
+  id('btnSalvar').textContent='Sem permissão';
+ }
+ id('fData').value = new Date().toISOString().slice(0,10);
+ salvarSessao();
+}
+
+function sair(){
+ _s=null;
+ localStorage.removeItem('3m_sis');
+ id('pgApp').style.display='none';
+ id('pgLogin').style.display='flex';
+ id('lUser').value='';id('lPass').value='';
+}
+
+function salvarSessao(){
+ try{localStorage.setItem('3m_sis', btoa(JSON.stringify(_s)));}catch(e){}
+}
+
+// ============ TABS ============
+const TABS = ['novo','historico','log','admin'];
+function showTab(t){
+ TABS.forEach(x=>{
+  const el=id('tab-'+x);
+  if(el) el.style.display = x===t?'block':'none';
+ });
+ document.querySelectorAll('.tab').forEach(el=>{
+  el.classList.toggle('on', el.textContent.toLowerCase().includes(
+   t==='novo'?'novo':t==='historico'?'hist':t==='log'?'log':'usu'
+  ));
+ });
+ if(t==='historico') carregarHist();
+ if(t==='log') carregarLog();
+ if(t==='admin') carregarUsuarios();
+}
+
+// ============ FORMULÁRIO ============
+function limpar(){
+ ['fForn','fNdoc','fProc','fHist','fDeb','fCred','fSap'].forEach(x=>id(x).value='');
+ ['fBanco','fStatus','fCl','fCat','fPrev'].forEach(x=>id(x).selectedIndex=0);
+ id('fData').value = new Date().toISOString().slice(0,10);
+}
+
+async function salvar(){
+ const data=v('fData'),hist=v('fHist').trim(),cl=v('fCl'),deb=v('fDeb'),cred=v('fCred');
+ if(!data){toast('Informe a data','err');return;}
+ if(!hist){toast('Informe o histórico','err');return;}
+ if(!cl){toast('Selecione a classificação','err');return;}
+ if(!deb&&!cred){toast('Informe débito ou crédito','err');return;}
+ const btn=id('btnSalvar');
+ btn.disabled=true;btn.innerHTML='<span class="spin"></span>Salvando...';
+ try{
+  const r = await post({
+   action:'lancar', usuario:_s.usuario, senha:_s.senha,
+   data, fornecedor:v('fForn'), banco:v('fBanco'), ndoc:v('fNdoc'),
+   processo:v('fProc'), classificacao:cl, historico:hist,
+   debito:deb||0, credito:cred||0, status:v('fStatus'),
+   sap:v('fSap'), categoria:v('fCat'), previsao:v('fPrev'),
+  });
+  if(r.ok){toast('✅ '+r.msg+' ('+r.aba+', L'+r.linha+')','ok');limpar();}
+  else toast('❌ '+r.erro,'err');
+ }catch(e){toast('❌ Erro: '+e.message,'err');}
+ btn.disabled=false;btn.textContent='💾 Salvar Lançamento';
+}
+
+// ============ HISTÓRICO ============
+async function carregarHist(){
+ id('listaH').innerHTML='<div class="emp"><span class="spin"></span>Carregando...</div>';
+ try{
+  const r = await post({action:'recentes',usuario:_s.usuario,senha:_s.senha});
+  if(!r.ok||!r.lancamentos?.length){id('listaH').innerHTML='<div class="emp">Nenhum lançamento encontrado</div>';return;}
+  const l=r.lancamentos;
+  const totD=l.reduce((s,x)=>s+(+x.debito||0),0);
+  const totC=l.reduce((s,x)=>s+(+x.credito||0),0);
+  id('kpisH').innerHTML=`
+   <div class="kp"><div class="kp-l">Lançamentos</div><div class="kp-v">${l.length}</div></div>
+   <div class="kp" style="border-top-color:var(--red)"><div class="kp-l">Total Débitos</div><div class="kp-v" style="color:var(--red)">${R$(totD)}</div></div>
+   <div class="kp" style="border-top-color:var(--green)"><div class="kp-l">Total Créditos</div><div class="kp-v" style="color:var(--green)">${R$(totC)}</div></div>`;
+  id('listaH').innerHTML=`<div class="tw"><table>
+   <thead><tr><th>Data</th><th>Fornecedor</th><th>Histórico</th><th>Classificação</th><th class="r">Débito</th><th class="r">Crédito</th></tr></thead>
+   <tbody>${l.map(x=>`<tr>
+    <td>${fmtD(x.data)}</td>
+    <td style="font-weight:600;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x.fornecedor||'—'}</td>
+    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text3)">${x.historico||'—'}</td>
+    <td style="font-size:10px;color:var(--text3);white-space:nowrap">${x.classificacao||'—'}</td>
+    <td class="r red">${x.debito?R$(x.debito):'—'}</td>
+    <td class="r grn">${x.credito?R$(x.credito):'—'}</td>
+   </tr>`).join('')}</tbody></table></div>`;
+ }catch(e){id('listaH').innerHTML='<div class="emp">Erro: '+e.message+'</div>';}
+}
+
+// ============ LOG ============
+async function carregarLog(){
+ id('listaLog').innerHTML='<div class="emp"><span class="spin"></span>Carregando...</div>';
+ try{
+  const r = await post({action:'ver_log',usuario:_s.usuario,senha:_s.senha});
+  if(!r.ok){id('listaLog').innerHTML='<div class="emp">'+r.erro+'</div>';return;}
+  if(!r.log?.length){id('listaLog').innerHTML='<div class="emp">Nenhum registro de log</div>';return;}
+  id('listaLog').innerHTML=`<div class="tw"><table>
+   <thead><tr><th>Data/Hora</th><th>Usuário</th><th>Nome</th><th>Ação</th><th>Referência</th><th>Detalhe</th></tr></thead>
+   <tbody>${r.log.map(x=>`<tr>
+    <td style="white-space:nowrap;font-size:11px">${fmtDT(x.data)}</td>
+    <td style="font-weight:700;color:var(--navy)">${x.usuario||'—'}</td>
+    <td style="font-size:11px">${x.nome||'—'}</td>
+    <td><span style="background:${x.acao==='LANÇAMENTO'?'#e8f5e9':x.acao==='LOGIN'?'#e3f2fd':x.acao.includes('SENHA')?'#fff3e0':'#f3e5f5'};padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700">${x.acao||'—'}</span></td>
+    <td style="font-size:11px;color:var(--text3)">${x.ref||'—'}</td>
+    <td style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${x.detalhe||''}">${x.detalhe||'—'}</td>
+   </tr>`).join('')}</tbody></table></div>`;
+ }catch(e){id('listaLog').innerHTML='<div class="emp">Erro: '+e.message+'</div>';}
+}
+
+// ============ ADMIN ============
+async function carregarUsuarios(){
+ id('listaUsers').innerHTML='<div class="emp"><span class="spin"></span>Carregando...</div>';
+ try{
+  const r = await post({action:'listar_usuarios',usuario:_s.usuario,senha:_s.senha});
+  if(!r.ok){id('listaUsers').innerHTML='<div class="emp">'+r.erro+'</div>';return;}
+  id('listaUsers').innerHTML=`<div class="tw"><table>
+   <thead><tr><th>Login</th><th>Nome</th><th>Perfil</th><th>Senha</th><th>Ações</th></tr></thead>
+   <tbody>${r.usuarios.map(u=>`<tr>
+    <td style="font-weight:700;font-family:monospace">${u.usuario}</td>
+    <td>${u.nome}</td>
+    <td><span class="perfil-pill ${u.perfil==='admin'?'p-admin':u.perfil==='lancador'?'p-lanc':'p-vis'}">${u.perfil}</span></td>
+    <td>${u.senha_temp?'<span class="temp-badge">⚠ Padrão</span>':'<span style="color:var(--green);font-size:11px">✓ Personalizada</span>'}</td>
+    <td style="white-space:nowrap">
+     ${u.usuario!=='natalia'?`
+      <button class="btn btn-r" style="padding:4px 10px;font-size:10px" onclick="resetarSenha('${u.usuario}')">↺ Resetar Senha</button>
+      <button class="btn btn-s" style="padding:4px 10px;font-size:10px;margin-left:4px" onclick="removerUsuario('${u.usuario}','${u.nome}')">✕ Remover</button>
+     `:'<span style="font-size:10px;color:var(--text3)">Admin principal</span>'}
+    </td>
+   </tr>`).join('')}</tbody></table></div>`;
+ }catch(e){id('listaUsers').innerHTML='<div class="emp">Erro: '+e.message+'</div>';}
+}
+
+async function addUsuario(){
+ const usuario=v('aUser').toLowerCase().trim(), nome=v('aNome').trim(), perfil=v('aPerfil');
+ if(!usuario||!nome){toast('Informe login e nome','err');return;}
+ try{
+  const r = await post({action:'add_usuario',usuario:_s.usuario,senha:_s.senha,novo_usuario:usuario,novo_nome:nome,novo_perfil:perfil});
+  if(r.ok){toast('✅ '+r.msg,'ok');id('aUser').value='';id('aNome').value='';carregarUsuarios();}
+  else toast('❌ '+r.erro,'err');
+ }catch(e){toast('❌ Erro: '+e.message,'err');}
+}
+
+async function resetarSenha(u){
+ if(!confirm('Resetar senha de "'+u+'" para 3M@2026?')) return;
+ try{
+  const r = await post({action:'reset_senha',usuario:_s.usuario,senha:_s.senha,alvo_usuario:u});
+  if(r.ok){toast('✅ '+r.msg,'ok');carregarUsuarios();}
+  else toast('❌ '+r.erro,'err');
+ }catch(e){toast('❌ Erro: '+e.message,'err');}
+}
+
+async function removerUsuario(u, nome){
+ if(!confirm('Remover o usuário "'+nome+'" ('+u+')? Esta ação não pode ser desfeita.')) return;
+ try{
+  const r = await post({action:'remover_usuario',usuario:_s.usuario,senha:_s.senha,alvo_usuario:u});
+  if(r.ok){toast('✅ '+r.msg,'ok');carregarUsuarios();}
+  else toast('❌ '+r.erro,'err');
+ }catch(e){toast('❌ Erro: '+e.message,'err');}
+}
+
+// ============ UTILS ============
+function id(x){return document.getElementById(x)}
+function v(x){return (id(x)?.value||'').trim()}
+function R$(x){return(+x||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function fmtD(d){try{return new Date(d).toLocaleDateString('pt-BR');}catch(e){return String(d).slice(0,10);}}
+function fmtDT(d){try{return new Date(d).toLocaleString('pt-BR');}catch(e){return String(d);}}
+function showErr(el,msg){el.textContent=msg;el.style.display='block';}
+async function post(body){
+ // GAS não aceita POST cross-origin — enviamos via GET com payload codificado
+ const payload = encodeURIComponent(JSON.stringify(body));
+ const url = GAS + '?payload=' + payload + '&_t=' + Date.now();
+ const r = await fetch(url, {redirect:'follow', cache:'no-store'});
+ if(!r.ok) throw new Error('HTTP '+r.status);
+ return r.json();
+}
+let _tt;
+function toast(msg,tipo){
+ const el=id('toast');el.textContent=msg;el.className='toast '+tipo+' show';
+ clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),4000);
+}
+
+// ============ INIT ============
+try{
+ const sv=localStorage.getItem('3m_sis');
+ if(sv){_s=JSON.parse(atob(sv));iniciarApp();}
+}catch(e){localStorage.removeItem('3m_sis');}
+id('lPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+id('lUser').addEventListener('keydown',e=>{if(e.key==='Enter')id('lPass').focus();});
+</script>
+</body>
+</html>
